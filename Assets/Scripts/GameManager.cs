@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class GameManager : SingletonBehaviour<GameManager>
 {
-    // [Header("References")]
-    // [SerializeField] UI_Controller ui_Controller;
+    [Header("References")]
+    [SerializeField] UI_Controller ui_Controller;
 
     [Header("Game Settings")]
     [SerializeField] int numSettlements = 12;
@@ -19,17 +19,21 @@ public class GameManager : SingletonBehaviour<GameManager>
     public Resource[] Resources {get => _resources;}
     [SerializeField] Building[] _buildings;
     public Building[] Buildings {get => _buildings;}
-    public Settlement Settlement {get; protected set;}
+    public Settlement[] Settlements {get; protected set;}
     
 
 
     // Start is called before the first frame update
     void Start()
     {
-        Settlement = new Settlement(popPerSettlement, resourceQuantity, resourceQuality);
+        Settlements = new Settlement[numSettlements];
 
-        //ui_Controller.ShowSettlement(0);
+        for (int i = 0; i < numSettlements; i++)
+        {
+            Settlements[i] = new Settlement(popPerSettlement, resourceQuantity, resourceQuality);
+        }
+
+        ui_Controller.UpdateSettlementUI(0);
     }
-
 
 }

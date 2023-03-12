@@ -12,3 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e34a2af0668ecc4080afda2dea86572, type: 3}
   m_Name: Grain
   m_EditorClassIdentifier: 
+  _productionBuilding: {fileID: 11400000, guid: 03beb35c1cbce584f84a5d1428b29d29, type: 2}

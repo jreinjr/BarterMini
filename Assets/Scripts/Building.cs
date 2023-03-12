@@ -6,5 +6,5 @@ using UnityEngine;
 public class Building : ScriptableObject {
 
     [SerializeField] Resource _resourceNode;
-    public Resource ResourceNode {get => _resourceNode;}
+    public Resource ResourceDeposit {get => _resourceNode;}
 }

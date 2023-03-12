@@ -2,22 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class Settlement
 {
-    public int Population {get; protected set;}
-    public Dictionary<Resource, ResourceNode> ResourceNodes {get; protected set;}
-    public Dictionary<Resource, ResourceBalance> ResourceBalance {get; protected set;}
+    public int IdlePopulation {get; protected set;}
+    public Dictionary<Resource, ResourceNode> ResourceDeposits {get; protected set;}
+    public Dictionary<Resource, ResourceBalance> Marketplace {get; protected set;}
     public Dictionary<Building, int> Buildings {get; protected set;}
 
-    //public List<Building> Buildings {get; protected set;}
-
     public void ConstructBuilding(Building building){
-        if (building.ResourceNode != null){
-            if (Buildings[building] >= ResourceNodes[building.ResourceNode].Quantity){
+        if (building.ResourceDeposit != null){
+            if (Buildings[building] >= ResourceDeposits[building.ResourceDeposit].Quantity){
                 return;
             }
         }
         Buildings[building]++;
+        IdlePopulation--;
+
+        UpdateMarketplace();
     }
 
     public void DestroyBuilding(Building building){
@@ -30,18 +33,22 @@ public class Settlement
         }
 
         Buildings[building]--;
+        IdlePopulation++;
+
+        UpdateMarketplace();
     }
 
     public Settlement(int numPops, int resourceQuantity, int resourceQuality){
-        Population = numPops;
+        IdlePopulation = numPops;
 
-        ResourceNodes = new Dictionary<Resource, ResourceNode>();
-        ResourceBalance = new Dictionary<Resource, ResourceBalance>();
+        ResourceDeposits = new Dictionary<Resource, ResourceNode>();
+        Marketplace = new Dictionary<Resource, ResourceBalance>();
         Buildings = new Dictionary<Building, int>();
 
         foreach (var resource in GameManager.instance.Resources)
         {
-            ResourceNodes.Add(resource, new ResourceNode());
+            ResourceDeposits.Add(resource, new ResourceNode());
+            Marketplace.Add(resource, new ResourceBalance());
         }
 
         foreach (var building in GameManager.instance.Buildings)
@@ -52,17 +59,27 @@ public class Settlement
         for (int i = 0; i < resourceQuantity; i++)
         {
             Resource randomResource = GameManager.instance.Resources[Random.Range(0, GameManager.instance.Resources.Length)];
-            var tempNode = ResourceNodes[randomResource];
+            var tempNode = ResourceDeposits[randomResource];
             tempNode.Quantity++;
-            ResourceNodes[randomResource] = tempNode;
+            ResourceDeposits[randomResource] = tempNode;
         }
 
         for (int i = 0; i < resourceQuality; i++)
         {
             Resource randomResource = GameManager.instance.Resources[Random.Range(0, GameManager.instance.Resources.Length)];
-            var tempNode = ResourceNodes[randomResource];
+            var tempNode = ResourceDeposits[randomResource];
             tempNode.Quality++;
-            ResourceNodes[randomResource] = tempNode;
+            ResourceDeposits[randomResource] = tempNode;
+        }
+
+        UpdateMarketplace();
+    }
+
+    public void UpdateMarketplace(){
+        foreach (Resource resource in Marketplace.Keys)
+        {
+            Marketplace[resource].Supply = Buildings[resource.ProductionBuilding] * (1 + ResourceDeposits[resource].Quality * 0.2f) + IdlePopulation;
+            Marketplace[resource].Demand = IdlePopulation;
         }
     }
 }
